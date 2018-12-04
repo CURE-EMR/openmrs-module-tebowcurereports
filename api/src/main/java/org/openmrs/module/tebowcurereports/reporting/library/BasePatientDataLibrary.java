@@ -41,7 +41,7 @@ public class BasePatientDataLibrary extends BaseDefinitionLibrary<PatientDataDef
 	
 	@Override
 	public String getKeyPrefix() {
-		return "pihmalawi.patientData.";
+		return "tebowcure.patientData.";
 	}
 	
 	@Override
