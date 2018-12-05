@@ -21,12 +21,12 @@ public class CCHUSetupReportsFormController {
 	@RequestMapping("/module/tebowcurereports/register_accomplishmentsReport")
 	public ModelAndView registerAccomplishmentsReport() throws Exception {
 		new SetupAccomplishmentsReport().setup();
-		return new ModelAndView(new RedirectView("cchureports.form"));
+		return new ModelAndView(new RedirectView("tebowcurereports.form"));
 	}
 	
 	@RequestMapping("/module/tebowcurereports/remove_accomplishmentsReport")
 	public ModelAndView removeAccomplishmentsReport() throws Exception {
 		new SetupAccomplishmentsReport().delete();
-		return new ModelAndView(new RedirectView("cchureports.form"));
+		return new ModelAndView(new RedirectView("tebowcurereports.form"));
 	}
 }

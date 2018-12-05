@@ -1,6 +1,7 @@
 package org.openmrs.module.tebowcurereports.reporting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -8,10 +9,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.common.ObjectUtil;
 import org.openmrs.module.reporting.data.encounter.library.BuiltInEncounterDataLibrary;
-import org.openmrs.module.reporting.dataset.definition.EncounterAndObsDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.query.encounter.definition.MappedParametersEncounterQuery;
@@ -19,10 +20,19 @@ import org.openmrs.module.reporting.query.encounter.definition.SqlEncounterQuery
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;
+import org.openmrs.module.tebowcurereports.dataset.definition.EncounterAndObsDataSetDefinition2;
 import org.openmrs.module.tebowcurereports.reporting.library.BasePatientDataLibrary;
 import org.openmrs.module.tebowcurereports.util.GlobalPropertiesManagement;
 
 public class SetupAccomplishmentsReport {
+	
+	private int dateTimeOfAdmission = 3822;
+	
+	private int dateTimeOofDischarge = 3826;
+	
+	private int operationPerformed = 3834;
+	
+	private int finalBillingDiagnosis = 3651;
 	
 	BuiltInEncounterDataLibrary encounterData = new BuiltInEncounterDataLibrary();
 	
@@ -32,7 +42,12 @@ public class SetupAccomplishmentsReport {
 	
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 	
+	List<Concept> obsWeWant = null;
+	
 	public void setup() throws Exception {
+		ConceptService cs = Context.getConceptService();
+		obsWeWant = Arrays.asList(cs.getConcept(dateTimeOfAdmission), cs.getConcept(dateTimeOofDischarge), cs.getConcept(operationPerformed), cs.getConcept(finalBillingDiagnosis));
+		
 		ReportDefinition rd = createReportDefinition();
 		ReportDesign designExcel = Helper.createExcelDesign(rd, "Doctors Accomplishments Report.xls_", true);
 		
@@ -73,8 +88,9 @@ public class SetupAccomplishmentsReport {
 	}
 	
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
-		EncounterAndObsDataSetDefinition dsd = new EncounterAndObsDataSetDefinition();
-		dsd.setName("dsd");
+		
+		EncounterAndObsDataSetDefinition2 dsd = new EncounterAndObsDataSetDefinition2(obsWeWant);
+		dsd.setName("");
 		dsd.setParameters(getParameters());
 		
 		SqlEncounterQuery rowFilter = new SqlEncounterQuery();
