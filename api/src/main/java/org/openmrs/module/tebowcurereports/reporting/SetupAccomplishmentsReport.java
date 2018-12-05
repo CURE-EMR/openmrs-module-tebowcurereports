@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
-import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.common.ObjectUtil;
 import org.openmrs.module.reporting.data.encounter.library.BuiltInEncounterDataLibrary;
@@ -23,16 +22,17 @@ import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.tebowcurereports.dataset.definition.EncounterAndObsDataSetDefinition2;
 import org.openmrs.module.tebowcurereports.reporting.library.BasePatientDataLibrary;
 import org.openmrs.module.tebowcurereports.util.GlobalPropertiesManagement;
+import org.openmrs.module.tebowcurereports.util.MetadataLookup;
 
 public class SetupAccomplishmentsReport {
 	
-	private int dateTimeOfAdmission = 3822;
+	private Concept dateTimeOfAdmission;
 	
-	private int dateTimeOofDischarge = 3826;
+	private Concept dateTimeOfDischarge;
 	
-	private int operationPerformed = 3834;
+	private Concept operationPerformed;
 	
-	private int finalBillingDiagnosis = 3651;
+	private Concept finalBillingDiagnosis;
 	
 	BuiltInEncounterDataLibrary encounterData = new BuiltInEncounterDataLibrary();
 	
@@ -45,9 +45,7 @@ public class SetupAccomplishmentsReport {
 	List<Concept> obsWeWant = null;
 	
 	public void setup() throws Exception {
-		ConceptService cs = Context.getConceptService();
-		obsWeWant = Arrays.asList(cs.getConcept(dateTimeOfAdmission), cs.getConcept(dateTimeOofDischarge), cs.getConcept(operationPerformed), cs.getConcept(finalBillingDiagnosis));
-		
+		setupProperties();
 		ReportDefinition rd = createReportDefinition();
 		ReportDesign designExcel = Helper.createExcelDesign(rd, "Doctors Accomplishments Report.xls_", true);
 		
@@ -127,6 +125,17 @@ public class SetupAccomplishmentsReport {
 		l.add(encouterType);
 		l.add(form);
 		return l;
+	}
+	
+	private void setupProperties() {
+		
+		dateTimeOfAdmission = MetadataLookup.getConcept("3822");
+		dateTimeOfDischarge = MetadataLookup.getConcept("3826");
+		operationPerformed = MetadataLookup.getConcept("3834");
+		finalBillingDiagnosis = MetadataLookup.getConcept("3651");
+		
+		obsWeWant = Arrays.asList(dateTimeOfAdmission, dateTimeOfDischarge, operationPerformed, finalBillingDiagnosis);
+		
 	}
 	
 }
