@@ -7,7 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-public class CCHURegisterRemoveAllReportsFormController {
+public class TebowCureRegisterRemoveAllReportsFormController {
 	
 	@RequestMapping("/module/tebowcurereports/register_allReports")
 	public ModelAndView registerAllReports() throws Exception {
