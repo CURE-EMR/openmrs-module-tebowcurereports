@@ -111,13 +111,8 @@ public class SetupFormPrintReport {
 	
 	public List<Parameter> getParameters() {
 		List<Parameter> l = new ArrayList<Parameter>();
-		l.add(new Parameter("startDate", "From Date", Date.class));
-		l.add(new Parameter("endDate", "To Date", Date.class));
-		
-		Parameter encounter = new Parameter("doctor", "Doctor", String.class);
-		encounter.setRequired(false);
-		
-		l.add(encounter);
+		l.add(new Parameter("formName", "Form Name", Concept.class));
+		l.add(new Parameter("encounterUUID", "Encounter UUID", String.class));
 		return l;
 	}
 	
