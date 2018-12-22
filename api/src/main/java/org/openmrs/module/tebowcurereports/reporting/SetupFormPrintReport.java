@@ -74,13 +74,8 @@ public class SetupFormPrintReport {
 		
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setName("Form Print Report");
-		reportDefinition.addParameter(new Parameter("startDate", "From Date", Date.class));
-		reportDefinition.addParameter(new Parameter("endDate", "To Date", Date.class));
-		
-		Parameter form = new Parameter("doctor", "Doctor", String.class);
-		form.setRequired(false);
-		
-		reportDefinition.addParameter(form);
+		reportDefinition.addParameter(new Parameter("formName", "Form Name", Concept.class));
+		reportDefinition.addParameter(new Parameter("encounterUUID", "Encounter UUID", String.class));
 		
 		createDataSetDefinition(reportDefinition);
 		
@@ -96,17 +91,16 @@ public class SetupFormPrintReport {
 		dsd.setParameters(getParameters());
 		
 		SqlEncounterQuery rowFilter = new SqlEncounterQuery();
-		rowFilter.addParameter(new Parameter("onOrAfter", "On Or After", Date.class));
-		rowFilter.addParameter(new Parameter("onOrBefore", "On Or Before", Date.class));
+		rowFilter.addParameter(new Parameter("formName", "Form Name", Concept.class));
 		
-		Parameter doctor = new Parameter("doctor", "Doctor", String.class);
-		doctor.setRequired(false);
+		Parameter encounterUUID = new Parameter("encounterUUID", "Encounter UUID", String.class);
+		encounterUUID.setRequired(true);
 		
-		rowFilter.addParameter(doctor);
+		rowFilter.addParameter(encounterUUID);
 		
-		rowFilter.setQuery("select encounter_id from encounter where encounter_id=:doctor");
+		rowFilter.setQuery("select encounter_id from encounter where encounter_id=:encounterUUID");
 		
-		MappedParametersEncounterQuery q = new MappedParametersEncounterQuery(rowFilter, ObjectUtil.toMap("onOrAfter=startDate,onOrBefore=endDate,doctor=doctor"));
+		MappedParametersEncounterQuery q = new MappedParametersEncounterQuery(rowFilter, ObjectUtil.toMap("formName=formName,encounterUUID=encounterUUID"));
 		dsd.addRowFilter(Mapped.mapStraightThrough(q));
 		
 		dsd.addColumn("Family Name", basePatientData.getPreferredFamilyNames(), "");
