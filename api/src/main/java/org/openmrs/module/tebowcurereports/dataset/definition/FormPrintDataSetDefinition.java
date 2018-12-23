@@ -9,8 +9,6 @@
  */
 package org.openmrs.module.tebowcurereports.dataset.definition;
 
-import java.util.List;
-
 import org.openmrs.Concept;
 import org.openmrs.module.reporting.common.Localized;
 import org.openmrs.module.reporting.dataset.definition.EncounterDataSetDefinition;
@@ -24,21 +22,21 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 @Localized("reporting.EncounterAndObsDataSetDefinition")
 public class FormPrintDataSetDefinition extends EncounterDataSetDefinition {
 	
-	private List<Concept> columnsWeWant;
+	private Concept formConcept;
 	
 	public FormPrintDataSetDefinition() {
 	}
 	
-	public FormPrintDataSetDefinition(List<Concept> columnsWeWant) {
-		this.columnsWeWant = columnsWeWant;
+	public FormPrintDataSetDefinition(Concept formConcept) {
+		this.formConcept = formConcept;
 	}
 	
-	public List<Concept> getColumnsWeWant() {
-		return columnsWeWant;
+	public Concept getFormConcept() {
+		return formConcept;
 	}
 	
-	public void setColumnsWeWant(List<Concept> columnsWeWant) {
-		this.columnsWeWant = columnsWeWant;
+	public void setFormConcept(Concept formConcept) {
+		this.formConcept = formConcept;
 	}
 	
 }

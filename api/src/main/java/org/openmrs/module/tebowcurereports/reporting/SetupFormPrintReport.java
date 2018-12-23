@@ -2,7 +2,6 @@ package org.openmrs.module.tebowcurereports.reporting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -86,7 +85,7 @@ public class SetupFormPrintReport {
 	
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
 		
-		FormPrintDataSetDefinition dsd = new FormPrintDataSetDefinition(obsWeWant);
+		FormPrintDataSetDefinition dsd = new FormPrintDataSetDefinition(dateTimeOfAdmission);
 		dsd.setName("dataSet");
 		dsd.setParameters(getParameters());
 		
