@@ -3,7 +3,6 @@ package org.openmrs.module.tebowcurereports.reporting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +22,7 @@ import org.openmrs.module.tebowcurereports.reporting.library.BasePatientDataLibr
 import org.openmrs.module.tebowcurereports.util.GlobalPropertiesManagement;
 import org.openmrs.module.tebowcurereports.util.MetadataLookup;
 
-public class SetupFormPrintReport {
+public class SetupSurgicalMemorandumPrintReport {
 	
 	private Concept dateTimeOfAdmission;
 	
@@ -37,7 +36,7 @@ public class SetupFormPrintReport {
 	
 	private BasePatientDataLibrary basePatientData = new BasePatientDataLibrary();
 	
-	protected final static Log log = LogFactory.getLog(SetupFormPrintReport.class);
+	protected final static Log log = LogFactory.getLog(SetupSurgicalMemorandumPrintReport.class);
 	
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 	
@@ -49,12 +48,7 @@ public class SetupFormPrintReport {
 		
 		ReportDefinition rd = createReportDefinition();
 		
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "formPrintReport.xls", "formPrintReport.xls_", null);
-		
-		Properties props = new Properties();
-		props.put("repeatingSections", "sheet:1,row:9,dataset:dataSet");
-		props.put("sortWeight", "5000");
-		design.setProperties(props);
+		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandum.xls", "surgicalMemorandum.xls_", null);
 		
 		Helper.saveReportDesign(design);
 	}
@@ -62,17 +56,17 @@ public class SetupFormPrintReport {
 	public void delete() {
 		ReportService rs = Context.getService(ReportService.class);
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("Form Print Report.xls_".equals(rd.getName()) || "Form Print Report.csv_".equals(rd.getName())) {
+			if ("Surgical Memorandum Report.xls_".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("Form Print Report");
+		Helper.purgeReportDefinition("Surgical Memorandum Report");
 	}
 	
 	private ReportDefinition createReportDefinition() {
 		
 		ReportDefinition reportDefinition = new ReportDefinition();
-		reportDefinition.setName("Form Print Report");
+		reportDefinition.setName("Surgical Memorandum Report");
 		reportDefinition.addParameter(new Parameter("formName", "Form Name", Concept.class));
 		reportDefinition.addParameter(new Parameter("encounterUUID", "Encounter UUID", String.class));
 		
@@ -97,7 +91,7 @@ public class SetupFormPrintReport {
 		
 		rowFilter.addParameter(encounterUUID);
 		
-		rowFilter.setQuery("select encounter_id from encounter where encounter_id=:encounterUUID");
+		rowFilter.setQuery("select encounter_id from encounter where uuid=:encounterUUID");
 		
 		MappedParametersEncounterQuery q = new MappedParametersEncounterQuery(rowFilter, ObjectUtil.toMap("formName=formName,encounterUUID=encounterUUID"));
 		dsd.addRowFilter(Mapped.mapStraightThrough(q));

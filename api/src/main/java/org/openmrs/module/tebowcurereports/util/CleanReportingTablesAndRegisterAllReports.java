@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.tebowcurereports.reporting.SetupAccomplishmentsReport;
-import org.openmrs.module.tebowcurereports.reporting.SetupFormPrintReport;
+import org.openmrs.module.tebowcurereports.reporting.SetupSurgicalMemorandumPrintReport;
 import org.openmrs.module.tebowcurereports.reporting.SetupHospitalMonthlyIndicatorsReport;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -62,7 +62,7 @@ public class CleanReportingTablesAndRegisterAllReports {
 	public static void registerReports() throws Exception {
 		new SetupAccomplishmentsReport().setup();
 		new SetupHospitalMonthlyIndicatorsReport().setup();
-		new SetupFormPrintReport().setup();
+		new SetupSurgicalMemorandumPrintReport().setup();
 	}
 	
 }

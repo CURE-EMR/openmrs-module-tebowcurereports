@@ -3,7 +3,7 @@ package org.openmrs.module.tebowcurereports.web.controller;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.tebowcurereports.reporting.SetupAccomplishmentsReport;
-import org.openmrs.module.tebowcurereports.reporting.SetupFormPrintReport;
+import org.openmrs.module.tebowcurereports.reporting.SetupSurgicalMemorandumPrintReport;
 import org.openmrs.module.tebowcurereports.reporting.SetupHospitalMonthlyIndicatorsReport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,13 +46,13 @@ public class TebowCureSetupReportsFormController {
 	
 	@RequestMapping("/module/tebowcurereports/register_formPrintReport")
 	public ModelAndView registerFormPrintReport() throws Exception {
-		new SetupFormPrintReport().setup();
+		new SetupSurgicalMemorandumPrintReport().setup();
 		return new ModelAndView(new RedirectView("tebowcurereports.form"));
 	}
 	
 	@RequestMapping("/module/tebowcurereports/remove_formPrintReport")
 	public ModelAndView removeFormPrintReport() throws Exception {
-		new SetupFormPrintReport().delete();
+		new SetupSurgicalMemorandumPrintReport().delete();
 		return new ModelAndView(new RedirectView("tebowcurereports.form"));
 	}
 }
