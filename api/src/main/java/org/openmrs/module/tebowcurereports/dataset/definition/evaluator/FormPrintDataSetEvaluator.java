@@ -72,6 +72,8 @@ public class FormPrintDataSetEvaluator extends EncounterDataSetEvaluator {
 		allObs.setSingleObs(false);
 		dsd.addColumn("OBS", allObs, "");
 		
+		log.error("=============" + context.getParameterValue("parentObsUuid").toString());
+		
 		// Produce the core starting data set for encounter data
 		SimpleDataSet data = (SimpleDataSet) super.evaluate(dsd, context);
 		

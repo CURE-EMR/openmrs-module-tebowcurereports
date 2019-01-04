@@ -75,6 +75,7 @@ public class Helper {
 		resource.setExtension("xls");
 		InputStream is = OpenmrsClassLoader.getInstance().getResourceAsStream(resourceName);
 		resource.setContents(IOUtils.toByteArray(is));
+		
 		final ReportDesign design = new ReportDesign();
 		design.setName(name);
 		design.setReportDefinition(rd);
@@ -115,6 +116,13 @@ public class Helper {
 	public static void saveReportDesign(ReportDesign design) {
 		ReportService rs = Context.getService(ReportService.class);
 		rs.saveReportDesign(design);
+	}
+	
+	public static void saveReportDesign(List<ReportDesign> designs) {
+		ReportService rs = Context.getService(ReportService.class);
+		for (ReportDesign reportDesign : designs) {
+			rs.saveReportDesign(reportDesign);
+		}
 	}
 	
 }

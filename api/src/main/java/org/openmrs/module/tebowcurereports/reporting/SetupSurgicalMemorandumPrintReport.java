@@ -24,33 +24,43 @@ import org.openmrs.module.tebowcurereports.util.MetadataLookup;
 
 public class SetupSurgicalMemorandumPrintReport {
 	
+	protected final static Log log = LogFactory.getLog(SetupSurgicalMemorandumPrintReport.class);
+	
 	private Concept formConcept;
 	
 	BuiltInEncounterDataLibrary encounterData = new BuiltInEncounterDataLibrary();
 	
 	private BasePatientDataLibrary basePatientData = new BasePatientDataLibrary();
 	
-	protected final static Log log = LogFactory.getLog(SetupSurgicalMemorandumPrintReport.class);
-	
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 	
 	List<Concept> obsWeWant = null;
 	
+	List<ReportDesign> reportDesigns = null;
+	
 	public void setup() throws Exception {
+		
+		reportDesigns = new ArrayList<ReportDesign>();
 		
 		setupProperties();
 		
 		ReportDefinition rd = createReportDefinition();
 		
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandum.xls", "surgicalMemorandum.xls_", null);
+		reportDesigns.add(Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandumGeneral.xls", "surgicalMemorandumGeneral.xls_", null));
+		reportDesigns.add(Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandumWoundCare.xls", "surgicalMemorandumWoundCare.xls_", null));
+		reportDesigns.add(Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandumTenotomy.xls", "surgicalMemorandumTenotomy.xls_", null));
+		reportDesigns.add(Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandumPinsRemoval.xls", "surgicalMemorandumPinsRemoval.xls_", null));
 		
-		Helper.saveReportDesign(design);
+		for (ReportDesign reportDesign : reportDesigns) {
+			Helper.saveReportDesign(reportDesign);
+		}
 	}
 	
 	public void delete() {
+		List<String> designs = Arrays.asList("surgicalMemorandumGeneral.xls_", "surgicalMemorandumWoundCare.xls_", "surgicalMemorandumTenotomy.xls_", "surgicalMemorandumPinsRemoval.xls_");
 		ReportService rs = Context.getService(ReportService.class);
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("Surgical Memorandum Report.xls_".equals(rd.getName())) {
+			if (designs.contains(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
@@ -62,6 +72,7 @@ public class SetupSurgicalMemorandumPrintReport {
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setName("Surgical Memorandum Report");
 		reportDefinition.addParameter(new Parameter("encounterUUID", "Encounter UUID", String.class));
+		reportDefinition.addParameter(new Parameter("parentObsUuid", "Parent Obs UUID", String.class));
 		
 		createDataSetDefinition(reportDefinition);
 		
@@ -96,6 +107,7 @@ public class SetupSurgicalMemorandumPrintReport {
 	public List<Parameter> getParameters() {
 		List<Parameter> l = new ArrayList<Parameter>();
 		l.add(new Parameter("encounterUUID", "Encounter UUID", String.class));
+		l.add(new Parameter("parentObsUuid", "Parent Obs UUID", String.class));
 		return l;
 	}
 	

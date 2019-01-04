@@ -55,6 +55,7 @@
 	<properties>
 		<openmrsPlatformVersion>1.11.6</openmrsPlatformVersion>
 		<reportingVersion>0.10.4</reportingVersion>
+		<calculationVersion>1.2</calculationVersion>
 	</properties>
 
 
@@ -67,6 +68,13 @@
 			<artifactId>reporting-api</artifactId>
 			<version>${reportingVersion}</version>
 			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>calculation-api</artifactId>
+			<version>${calculationVersion}</version>
 			<scope>provided</scope>
 		</dependency>
 
