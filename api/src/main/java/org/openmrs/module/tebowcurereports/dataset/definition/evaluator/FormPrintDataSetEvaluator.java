@@ -14,11 +14,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Obs;
 import org.openmrs.annotation.Handler;
+import org.openmrs.api.ObsService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.common.BeanPropertyComparator;
 import org.openmrs.module.reporting.common.ObjectCounter;
 import org.openmrs.module.reporting.common.ObjectUtil;
@@ -72,7 +75,7 @@ public class FormPrintDataSetEvaluator extends EncounterDataSetEvaluator {
 		allObs.setSingleObs(false);
 		dsd.addColumn("OBS", allObs, "");
 		
-		log.error("=============" + context.getParameterValue("parentObsUuid").toString());
+		Obs parentObs = Context.getService(ObsService.class).getObsByUuid(context.getParameterValue("parentObsUuid").toString());
 		
 		// Produce the core starting data set for encounter data
 		SimpleDataSet data = (SimpleDataSet) super.evaluate(dsd, context);
@@ -88,7 +91,7 @@ public class FormPrintDataSetEvaluator extends EncounterDataSetEvaluator {
 		
 		for (DataSetRow row : data.getRows()) {
 			List<Obs> obsList = (List<Obs>) row.getColumnValue("OBS");
-			
+			obsList = getObsWeWant(parentObs, parentObs.getEncounter().getAllObs());
 			if (obsList != null) {
 				ObjectCounter<String> currentNumForKey = new ObjectCounter<String>();
 				for (Obs obs : obsList) {
@@ -110,7 +113,7 @@ public class FormPrintDataSetEvaluator extends EncounterDataSetEvaluator {
 		// Add the Obs values to each dataset row
 		for (DataSetRow row : data.getRows()) {
 			List<Obs> obsList = (List<Obs>) row.getColumnValue("OBS");
-			
+			obsList = getObsWeWant(parentObs, parentObs.getEncounter().getAllObs());
 			if (obsList != null) {
 				ObjectCounter<String> currentNumForKey = new ObjectCounter<String>();
 				for (Obs obs : obsList) {
@@ -141,6 +144,17 @@ public class FormPrintDataSetEvaluator extends EncounterDataSetEvaluator {
 		data.getMetaData().getColumns().addAll(obsColumns);
 		
 		return data;
+	}
+	
+	protected List<Obs> getObsWeWant(Obs parentObs, Set<Obs> allObs) {
+		Set<Obs> relatedObs = parentObs.getRelatedObservations();
+		List<Obs> obsWeWant = new ArrayList<Obs>();
+		for (Obs obs : allObs) {
+			if (relatedObs.contains(obs)) {
+				obsWeWant.add(obs);
+			}
+		}
+		return obsWeWant;
 	}
 	
 	protected String getObsKey(Obs obs) {
