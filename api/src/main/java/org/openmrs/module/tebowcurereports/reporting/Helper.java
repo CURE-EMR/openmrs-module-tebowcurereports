@@ -113,9 +113,9 @@ public class Helper {
 		return design;
 	}
 	
-	public static void saveReportDesign(ReportDesign design) {
+	public static ReportDesign saveReportDesign(ReportDesign design) {
 		ReportService rs = Context.getService(ReportService.class);
-		rs.saveReportDesign(design);
+		return rs.saveReportDesign(design);
 	}
 	
 	public static void saveReportDesign(List<ReportDesign> designs) {

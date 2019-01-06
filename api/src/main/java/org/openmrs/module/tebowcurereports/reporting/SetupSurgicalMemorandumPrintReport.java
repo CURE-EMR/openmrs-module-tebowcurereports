@@ -1,5 +1,8 @@
 package org.openmrs.module.tebowcurereports.reporting;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +29,13 @@ public class SetupSurgicalMemorandumPrintReport {
 	
 	protected final static Log log = LogFactory.getLog(SetupSurgicalMemorandumPrintReport.class);
 	
-	private Concept formConcept;
+	private Concept surgicalMemorandumGeneral;
+	
+	private Concept surgicalMemorandumWoundCare;
+	
+	private Concept surgicalMemorandumTenotomy;
+	
+	private Concept surgicalMemorandumPinsRemoval;
 	
 	BuiltInEncounterDataLibrary encounterData = new BuiltInEncounterDataLibrary();
 	
@@ -41,6 +50,7 @@ public class SetupSurgicalMemorandumPrintReport {
 	public void setup() throws Exception {
 		
 		reportDesigns = new ArrayList<ReportDesign>();
+		Path path = Paths.get("/opt/bahmni-web/etc/bahmniapps/clinical/variables.js");
 		
 		setupProperties();
 		
@@ -51,9 +61,23 @@ public class SetupSurgicalMemorandumPrintReport {
 		reportDesigns.add(Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandumTenotomy.xls", "surgicalMemorandumTenotomy.xls_", null));
 		reportDesigns.add(Helper.createRowPerPatientXlsOverviewReportDesign(rd, "surgicalMemorandumPinsRemoval.xls", "surgicalMemorandumPinsRemoval.xls_", null));
 		
+		StringBuilder builder = new StringBuilder();
+		builder.append("var formAndReporDesignMap = { \"");
+		String prefix = "";
 		for (ReportDesign reportDesign : reportDesigns) {
-			Helper.saveReportDesign(reportDesign);
+			ReportDesign savedReportDesign = Helper.saveReportDesign(reportDesign);
+			String FormConceptUuid = getFormConcept(savedReportDesign).getUuid();
+			String designUui = savedReportDesign.getUuid();
+			
+			builder.append(prefix);
+			prefix = "\",\"";
+			builder.append(FormConceptUuid + "\":\"" + designUui);
 		}
+		builder.append("\"};");
+		builder.append("\n");
+		builder.append("var reportDefinitionUuid = \"" + rd.getUuid() + "\";");
+		Files.write(path, builder.toString().getBytes());
+		
 	}
 	
 	public void delete() {
@@ -83,7 +107,7 @@ public class SetupSurgicalMemorandumPrintReport {
 	
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
 		
-		FormPrintDataSetDefinition dsd = new FormPrintDataSetDefinition(formConcept);
+		FormPrintDataSetDefinition dsd = new FormPrintDataSetDefinition();
 		dsd.setName("dataSet");
 		dsd.setParameters(getParameters());
 		
@@ -112,7 +136,26 @@ public class SetupSurgicalMemorandumPrintReport {
 	}
 	
 	private void setupProperties() {
-		formConcept = MetadataLookup.getConcept("52acdbcb-ef5e-4413-91b7-2ada71858a68");
+		surgicalMemorandumGeneral = MetadataLookup.getConcept("3872");
+		surgicalMemorandumWoundCare = MetadataLookup.getConcept("3956");
+		surgicalMemorandumTenotomy = MetadataLookup.getConcept("3958");
+		surgicalMemorandumPinsRemoval = MetadataLookup.getConcept("3965");
+	}
+	
+	private Concept getFormConcept(ReportDesign reportDesign) {
+		if (reportDesign.getName().equalsIgnoreCase("surgicalMemorandumGeneral.xls_")) {
+			return surgicalMemorandumGeneral;
+		}
+		if (reportDesign.getName().equalsIgnoreCase("surgicalMemorandumWoundCare.xls_")) {
+			return surgicalMemorandumWoundCare;
+		}
+		if (reportDesign.getName().equalsIgnoreCase("surgicalMemorandumTenotomy.xls_")) {
+			return surgicalMemorandumTenotomy;
+		}
+		if (reportDesign.getName().equalsIgnoreCase("surgicalMemorandumPinsRemoval.xls_")) {
+			return surgicalMemorandumPinsRemoval;
+		}
+		return null;
 	}
 	
 }

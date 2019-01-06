@@ -9,7 +9,6 @@
  */
 package org.openmrs.module.tebowcurereports.dataset.definition;
 
-import org.openmrs.Concept;
 import org.openmrs.module.reporting.common.Localized;
 import org.openmrs.module.reporting.dataset.definition.EncounterDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationPropertyCachingStrategy;
@@ -22,21 +21,7 @@ import org.openmrs.module.reporting.evaluation.caching.Caching;
 @Localized("reporting.EncounterAndObsDataSetDefinition")
 public class FormPrintDataSetDefinition extends EncounterDataSetDefinition {
 	
-	private Concept formConcept;
-	
 	public FormPrintDataSetDefinition() {
-	}
-	
-	public FormPrintDataSetDefinition(Concept formConcept) {
-		this.formConcept = formConcept;
-	}
-	
-	public Concept getFormConcept() {
-		return formConcept;
-	}
-	
-	public void setFormConcept(Concept formConcept) {
-		this.formConcept = formConcept;
 	}
 	
 }
