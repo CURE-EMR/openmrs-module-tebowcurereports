@@ -12,15 +12,18 @@
 		${project.parent.description}
 	</description>
 
-	<activator>org.openmrs.module.tebowcurereports.TebowCUREReportsActivator</activator>
+	<activator>org.openmrs.module.tebowcurereports.TebowCUREReportsActivator
+	</activator>
 
 	<!-- <updateURL>https://modules.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL> -->
 	<!-- /Base Module Properties -->
 
 	<require_version>1.11.6</require_version>
 	<require_modules>
-		<require_module version="0.10.4">org.openmrs.module.reporting</require_module>
-		<require_module version="${calculationVersion}">org.openmrs.calculation</require_module>
+		<require_module version="0.10.4">org.openmrs.module.reporting
+		</require_module>
+		<require_module version="${calculationVersion}">org.openmrs.calculation
+		</require_module>
 	</require_modules>
 
 	<!-- Extensions -->
@@ -49,6 +52,12 @@
 		goes here. The description should explain enough for administrators to understand 
 		the purpose and possible values for the global property. </description> </globalProperty> 
 		/Required Global Properties -->
+
+	<globalProperty>
+		<property>tebowcurereports.serverIpAddress</property>
+		<defaultValue></defaultValue>
+		<description>IP Address for the server running Bahmni/OpenMRS (Type in just the IP address without "http://" or "https://")</description>
+	</globalProperty>
 
 	<!-- <dwr> <allow> <create creator="new" javascript="DWRFormEntryService"> 
 		<param name="class" value="org.openmrs.module.@MODULE_ID@.web.DWRFormEntryService"/> 

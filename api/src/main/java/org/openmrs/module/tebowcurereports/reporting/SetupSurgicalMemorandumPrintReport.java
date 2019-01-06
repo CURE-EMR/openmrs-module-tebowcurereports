@@ -76,6 +76,8 @@ public class SetupSurgicalMemorandumPrintReport {
 		builder.append("\"};");
 		builder.append("\n");
 		builder.append("var reportDefinitionUuid = \"" + rd.getUuid() + "\";");
+		builder.append("\n");
+		builder.append("var serverIpAddress = \"" + Context.getAdministrationService().getGlobalProperty("tebowcurereports.serverIpAddress") + "\";");
 		Files.write(path, builder.toString().getBytes());
 		
 	}
