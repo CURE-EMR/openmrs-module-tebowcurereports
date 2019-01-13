@@ -16,6 +16,7 @@ import org.openmrs.module.reporting.indicator.CohortIndicator;
 import org.openmrs.module.reporting.indicator.aggregation.Aggregator;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
