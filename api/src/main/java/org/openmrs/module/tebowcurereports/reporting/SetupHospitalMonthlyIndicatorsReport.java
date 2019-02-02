@@ -9,14 +9,19 @@
  */
 package org.openmrs.module.tebowcurereports.reporting;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.openmrs.Concept;
+import org.openmrs.PersonAttributeType;
 import org.openmrs.VisitType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.GenderCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.PersonAttributeCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.VisitCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
@@ -38,6 +43,12 @@ public class SetupHospitalMonthlyIndicatorsReport {
 	private List<VisitType> opdVisitTypes;
 	
 	private List<VisitType> allVisitTypes;
+	
+	private PersonAttributeType patientType;
+	
+	private Concept charityPatientType;
+	
+	private Concept privatePatientType;
 	
 	public void setup() throws Exception {
 		
@@ -85,49 +96,6 @@ public class SetupHospitalMonthlyIndicatorsReport {
 	
 	private void createIndicators(CohortIndicatorDataSetDefinition dsd) {
 		
-		/*
-		 * GenderCohortDefinition males = new GenderCohortDefinition();
-		 * males.setName("male Patients"); males.setMaleIncluded(true);
-		 * males.setFemaleIncluded(false);
-		 * 
-		 * GenderCohortDefinition females = new GenderCohortDefinition();
-		 * females.setName("female Patients"); females.setMaleIncluded(false);
-		 * females.setFemaleIncluded(true);
-		 * 
-		 * AgeCohortDefinition PatientBelow1Year = patientWithAgeBelow(1);
-		 * PatientBelow1Year.setName("PatientBelow1Year"); AgeCohortDefinition
-		 * PatientBetween1And9Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween1And9Years", 1, 9);
-		 * AgeCohortDefinition PatientBetween10And14Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween10And14Years", 10, 14);
-		 * AgeCohortDefinition PatientBetween15And19Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween15And19Years", 15, 19);
-		 * AgeCohortDefinition PatientBetween20And24Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween20And24Years", 20, 24);
-		 * AgeCohortDefinition PatientBetween25And29Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween25And29Years", 25, 29);
-		 * AgeCohortDefinition PatientBetween30And34Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween30And34Years", 30, 34);
-		 * AgeCohortDefinition PatientBetween35And39Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween35And39Years", 35, 39);
-		 * AgeCohortDefinition PatientBetween40And49Years =
-		 * Cohorts.createXtoYAgeCohort("PatientBetween40And49Years", 40, 49);
-		 * AgeCohortDefinition PatientBetween50YearsAndAbove = patientWithAgeAbove(50);
-		 * PatientBetween50YearsAndAbove.setName("PatientBetween50YearsAndAbove");
-		 * 
-		 * ArrayList<AgeCohortDefinition> agesRange = new
-		 * ArrayList<AgeCohortDefinition>(); // agesRange.add(PatientBelow1Year); //
-		 * agesRange.add(PatientBetween1And9Years);
-		 * agesRange.add(PatientBetween10And14Years);
-		 * agesRange.add(PatientBetween15And19Years);
-		 * agesRange.add(PatientBetween20And24Years);
-		 * agesRange.add(PatientBetween25And29Years);
-		 * agesRange.add(PatientBetween30And34Years);
-		 * agesRange.add(PatientBetween35And39Years);
-		 * agesRange.add(PatientBetween40And49Years);
-		 * agesRange.add(PatientBetween50YearsAndAbove);
-		 */
-		
 		VisitCohortDefinition patientsWithOpdVisitsBetweenDates = new VisitCohortDefinition();
 		patientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
 		patientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
@@ -149,7 +117,7 @@ public class SetupHospitalMonthlyIndicatorsReport {
 		newPatients.getSearches().put("2", new Mapped<CohortDefinition>(patientsWithAnyVisitBeforeDate, ParameterizableUtil.createParameterMappings("createdOnOrBefore=${createdOnOrAfter}")));
 		newPatients.setCompositionString("1 and (not 2)");
 		
-		CohortIndicator newPatientsIndicator = Indicators.newCohortIndicator("patientInYearRangeIndicator", newPatients, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		CohortIndicator newPatientsIndicator = Indicators.newCohortIndicator("newPatientsIndicator", newPatients, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
 		
 		dsd.addColumn("newPatients", "Initial/New", new Mapped<CohortIndicator>(newPatientsIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
 		
@@ -162,88 +130,116 @@ public class SetupHospitalMonthlyIndicatorsReport {
 		followUpPatients.getSearches().put("2", new Mapped<CohortDefinition>(patientsWithAnyVisitBeforeDate, ParameterizableUtil.createParameterMappings("createdOnOrBefore=${createdOnOrAfter}")));
 		followUpPatients.setCompositionString("1 and 2");
 		
-		CohortIndicator followUpPatientsIndicator = Indicators.newCohortIndicator("patientInYearRangeIndicator", followUpPatients, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		CohortIndicator followUpPatientsIndicator = Indicators.newCohortIndicator("followUpPatientsIndicator", followUpPatients, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
 		
 		dsd.addColumn("followUpPatients", "Follow-up/Return", new Mapped<CohortIndicator>(followUpPatientsIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
 		
-		/*
-		 * // Male and Female between 1 and 9 years
-		 * 
-		 * CohortIndicator patientBetween1And9YearsIndicator =
-		 * Indicators.newCohortIndicator("patientBetween1And9YearsIndicator",
-		 * PatientBetween1And9Years,
-		 * ParameterizableUtil.createParameterMappings("effectiveDate=${endDate}"));
-		 * 
-		 * dsd.addColumn("C119",
-		 * "TX_CURR: Currently on ART: Patients between 1 and 9 years", new
-		 * Mapped(patientBetween1And9YearsIndicator,
-		 * ParameterizableUtil.createParameterMappings(
-		 * "startDate=${startDate},endDate=${endDate}")), "");
-		 * 
-		 * // Male
-		 * 
-		 * int i = 2; for (AgeCohortDefinition ageCohort : agesRange) {
-		 * CompositionCohortDefinition patientInYearRange = new
-		 * CompositionCohortDefinition();
-		 * patientInYearRange.setName("patientInYearRangeEnrolledInHIVStarted");
-		 * patientInYearRange.addParameter(new Parameter("effectiveDate",
-		 * "effectiveDate", Date.class)); patientInYearRange.getSearches().put("1", new
-		 * Mapped<CohortDefinition>(ageCohort,
-		 * ParameterizableUtil.createParameterMappings("effectiveDate=${effectiveDate}")
-		 * )); patientInYearRange.getSearches().put("2", new
-		 * Mapped<CohortDefinition>(males, null));
-		 * patientInYearRange.setCompositionString("1 and 2");
-		 * 
-		 * CohortIndicator patientInYearRangeIndicator =
-		 * Indicators.newCohortIndicator("patientInYearRangeIndicator",
-		 * patientInYearRange,
-		 * ParameterizableUtil.createParameterMappings("effectiveDate=${endDate}"));
-		 * 
-		 * dsd.addColumn("C1M" + i, "Males:TX_CURR: Currently on ART by age and sex: " +
-		 * ageCohort.getName(), new Mapped(patientInYearRangeIndicator,
-		 * ParameterizableUtil.createParameterMappings(
-		 * "startDate=${startDate},endDate=${endDate}")), "");
-		 * 
-		 * i++; }
-		 * 
-		 * // Females int j = 2; for (AgeCohortDefinition ageCohort : agesRange) {
-		 * CompositionCohortDefinition patientInYearRange = new
-		 * CompositionCohortDefinition();
-		 * patientInYearRange.setName("patientInYearRangeEnrolledInHIVStarted");
-		 * patientInYearRange.addParameter(new Parameter("effectiveDate",
-		 * "effectiveDate", Date.class)); patientInYearRange.getSearches().put("1", new
-		 * Mapped<CohortDefinition>(ageCohort,
-		 * ParameterizableUtil.createParameterMappings("effectiveDate=${effectiveDate}")
-		 * )); patientInYearRange.getSearches().put("2", new
-		 * Mapped<CohortDefinition>(females, null));
-		 * patientInYearRange.setCompositionString("1 and 2");
-		 * 
-		 * CohortIndicator patientInYearRangeIndicator =
-		 * Indicators.newCohortIndicator("patientInYearRangeIndicator",
-		 * patientInYearRange,
-		 * ParameterizableUtil.createParameterMappings("effectiveDate=${endDate}"));
-		 * 
-		 * dsd.addColumn("C1F" + j, "Females:TX_CURR: Currently on ART by age and sex: "
-		 * + ageCohort.getName(), new Mapped(patientInYearRangeIndicator,
-		 * ParameterizableUtil.createParameterMappings(
-		 * "startDate=${startDate},endDate=${endDate}")), ""); j++; }
-		 * 
-		 * CompositionCohortDefinition allPatients = new CompositionCohortDefinition();
-		 * allPatients.setName("patientInYearRangeEnrolledInHIVStarted");
-		 * allPatients.addParameter(new Parameter("effectiveDate", "effectiveDate",
-		 * Date.class)); allPatients.getSearches().put("1", new
-		 * Mapped<CohortDefinition>(males, null)); allPatients.getSearches().put("2",
-		 * new Mapped<CohortDefinition>(females, null));
-		 * allPatients.setCompositionString("1 or 2");
-		 * 
-		 * CohortIndicator allPatientsIndicator =
-		 * Indicators.newCohortIndicator("patientInYearRangeIndicator", allPatients,
-		 * ParameterizableUtil.createParameterMappings("effectiveDate=${endDate}"));
-		 * 
-		 * dsd.addColumn("C1All", "TX_CURR: Currently on ART", new
-		 * Mapped(allPatientsIndicator, ParameterizableUtil.createParameterMappings(
-		 * "startDate=${startDate},endDate=${endDate}")), "");
-		 */
+		GenderCohortDefinition males = new GenderCohortDefinition();
+		males.setName("male Patients");
+		males.setMaleIncluded(true);
+		males.setFemaleIncluded(false);
+		
+		GenderCohortDefinition females = new GenderCohortDefinition();
+		females.setName("female Patients");
+		females.setMaleIncluded(false);
+		females.setFemaleIncluded(true);
+		
+		// Male
+		
+		CompositionCohortDefinition malePatientsWithOpdVisitsBetweenDates = new CompositionCohortDefinition();
+		malePatientsWithOpdVisitsBetweenDates.setName("malePatientsWithOpdVisitsBetweenDates");
+		malePatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
+		malePatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
+		malePatientsWithOpdVisitsBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${createdOnOrAfter},createdOnOrBefore=${createdOnOrBefore}")));
+		
+		malePatientsWithOpdVisitsBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(males, null));
+		malePatientsWithOpdVisitsBetweenDates.setCompositionString("1 and 2");
+		
+		CohortIndicator malePatientsWithOpdVisitsBetweenDatesIndicator = Indicators.newCohortIndicator("malePatientsWithOpdVisitsBetweenDatesIndicator", malePatientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("malePatients", "Male", new Mapped<CohortIndicator>(malePatientsWithOpdVisitsBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		// Female
+		
+		CompositionCohortDefinition femalePatientsWithOpdVisitsBetweenDates = new CompositionCohortDefinition();
+		femalePatientsWithOpdVisitsBetweenDates.setName("femalePatientsWithOpdVisitsBetweenDates");
+		femalePatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
+		femalePatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
+		femalePatientsWithOpdVisitsBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${createdOnOrAfter},createdOnOrBefore=${createdOnOrBefore}")));
+		
+		femalePatientsWithOpdVisitsBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(females, null));
+		femalePatientsWithOpdVisitsBetweenDates.setCompositionString("1 and 2");
+		
+		CohortIndicator femalePatientsWithOpdVisitsBetweenDatesIndicator = Indicators.newCohortIndicator("femalePatientsWithOpdVisitsBetweenDatesIndicator", femalePatientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("femalePatients", "Female", new Mapped<CohortIndicator>(femalePatientsWithOpdVisitsBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		CompositionCohortDefinition unknownGenderPatientsWithOpdVisitsBetweenDates = new CompositionCohortDefinition();
+		unknownGenderPatientsWithOpdVisitsBetweenDates.setName("unknownGenderPatientsWithOpdVisitsBetweenDates");
+		unknownGenderPatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
+		unknownGenderPatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
+		unknownGenderPatientsWithOpdVisitsBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${createdOnOrAfter},createdOnOrBefore=${createdOnOrBefore}")));
+		
+		unknownGenderPatientsWithOpdVisitsBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(males, null));
+		unknownGenderPatientsWithOpdVisitsBetweenDates.getSearches().put("3", new Mapped<CohortDefinition>(females, null));
+		unknownGenderPatientsWithOpdVisitsBetweenDates.setCompositionString("1 and ( not 2) and ( not 3 )");
+		
+		CohortIndicator unknownGenderPatientsWithOpdVisitsBetweenDatesIndicator = Indicators.newCohortIndicator("unknownGenderPatientsWithOpdVisitsBetweenDatesIndicator", unknownGenderPatientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("unknownGenderPatients", "Unknown Gender", new Mapped<CohortIndicator>(unknownGenderPatientsWithOpdVisitsBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		PersonAttributeCohortDefinition privatePatientCohortDefinition = new PersonAttributeCohortDefinition();
+		privatePatientCohortDefinition.setAttributeType(patientType);
+		List<Concept> privatePatientTypeConcepts = new ArrayList<Concept>();
+		privatePatientTypeConcepts.add(privatePatientType);
+		privatePatientCohortDefinition.setValueConcepts(privatePatientTypeConcepts);
+		
+		CompositionCohortDefinition privatePatientsWithOpdVisitsBetweenDates = new CompositionCohortDefinition();
+		privatePatientsWithOpdVisitsBetweenDates.setName("privatePatientsWithOpdVisitsBetweenDates");
+		privatePatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
+		privatePatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
+		privatePatientsWithOpdVisitsBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${createdOnOrAfter},createdOnOrBefore=${createdOnOrBefore}")));
+		
+		privatePatientsWithOpdVisitsBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(privatePatientCohortDefinition, null));
+		privatePatientsWithOpdVisitsBetweenDates.setCompositionString("1 and 2");
+		
+		CohortIndicator privatePatientsWithOpdVisitsBetweenDatesIndicator = Indicators.newCohortIndicator("privatePatientsWithOpdVisitsBetweenDatesIndicator", privatePatientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("privatePatients", "Private", new Mapped<CohortIndicator>(privatePatientsWithOpdVisitsBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		PersonAttributeCohortDefinition charityPatientsCohortDefinition = new PersonAttributeCohortDefinition();
+		charityPatientsCohortDefinition.setAttributeType(patientType);
+		List<Concept> charityPatientTypeConcepts = new ArrayList<Concept>();
+		charityPatientTypeConcepts.add(charityPatientType);
+		charityPatientsCohortDefinition.setValueConcepts(charityPatientTypeConcepts);
+		
+		CompositionCohortDefinition charityPatientsWithOpdVisitsBetweenDates = new CompositionCohortDefinition();
+		charityPatientsWithOpdVisitsBetweenDates.setName("charityPatientsWithOpdVisitsBetweenDates");
+		charityPatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
+		charityPatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
+		charityPatientsWithOpdVisitsBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${createdOnOrAfter},createdOnOrBefore=${createdOnOrBefore}")));
+		
+		charityPatientsWithOpdVisitsBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(charityPatientsCohortDefinition, null));
+		charityPatientsWithOpdVisitsBetweenDates.setCompositionString("1 and 2");
+		
+		CohortIndicator charityPatientsWithOpdVisitsBetweenDatesIndicator = Indicators.newCohortIndicator("patientInYearRangeIndicator", charityPatientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("charityPatients", "Charity", new Mapped<CohortIndicator>(charityPatientsWithOpdVisitsBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		CompositionCohortDefinition unknownPatientsWithOpdVisitsBetweenDates = new CompositionCohortDefinition();
+		unknownPatientsWithOpdVisitsBetweenDates.setName("unknownPatientsWithOpdVisitsBetweenDates");
+		unknownPatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrAfter", "Created on or after", Date.class));
+		unknownPatientsWithOpdVisitsBetweenDates.addParameter(new Parameter("createdOnOrBefore", "Created on or before", Date.class));
+		unknownPatientsWithOpdVisitsBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${createdOnOrAfter},createdOnOrBefore=${createdOnOrBefore}")));
+		
+		unknownPatientsWithOpdVisitsBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(charityPatientsCohortDefinition, null));
+		unknownPatientsWithOpdVisitsBetweenDates.getSearches().put("3", new Mapped<CohortDefinition>(privatePatientCohortDefinition, null));
+		unknownPatientsWithOpdVisitsBetweenDates.setCompositionString("1 and ( not 2 ) and ( not 3)");
+		
+		CohortIndicator uknownPatientsWithOpdVisitsBetweenDatesIndicator = Indicators.newCohortIndicator("uknownPatientsWithOpdVisitsBetweenDatesIndicator", unknownPatientsWithOpdVisitsBetweenDates, ParameterizableUtil.createParameterMappings("createdOnOrAfter=${startDate},createdOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("unknownPatientType", "Unknown Patient Type", new Mapped<CohortIndicator>(uknownPatientsWithOpdVisitsBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
 	}
 	
 	private void setUpProperties() {
@@ -252,22 +248,10 @@ public class SetupHospitalMonthlyIndicatorsReport {
 		opdVisitTypes = allVisitTypes;
 		opdVisitTypes.remove(Ipd);
 		
+		patientType = Context.getPersonService().getPersonAttributeTypeByUuid("e9d5d7a4-8805-454f-ba60-e99f105fb2d1");
+		privatePatientType = Context.getConceptService().getConceptByUuid("d12d6c6d-23d9-4164-9234-13154efe545a");
+		charityPatientType = Context.getConceptService().getConceptByUuid("3a732c0e-0f07-49f4-a074-b3fb7a5526c6");
+		
 	}
 	
-	/*
-	 * private AgeCohortDefinition patientWithAgeBelow(int age) {
-	 * AgeCohortDefinition patientsWithAgebelow = new AgeCohortDefinition();
-	 * patientsWithAgebelow.setName("patientsWithAgebelow");
-	 * patientsWithAgebelow.addParameter(new Parameter("effectiveDate",
-	 * "effectiveDate", Date.class)); patientsWithAgebelow.setMaxAge(age - 1);
-	 * patientsWithAgebelow.setMaxAgeUnit(DurationUnit.YEARS); return
-	 * patientsWithAgebelow; }
-	 * 
-	 * private AgeCohortDefinition patientWithAgeAbove(int age) {
-	 * AgeCohortDefinition patientsWithAge = new AgeCohortDefinition();
-	 * patientsWithAge.setName("patientsWithAge"); patientsWithAge.addParameter(new
-	 * Parameter("effectiveDate", "effectiveDate", Date.class));
-	 * patientsWithAge.setMinAge(age);
-	 * patientsWithAge.setMinAgeUnit(DurationUnit.YEARS); return patientsWithAge; }
-	 */
 }
