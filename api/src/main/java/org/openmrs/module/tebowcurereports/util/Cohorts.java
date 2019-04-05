@@ -8,10 +8,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.EncounterType;
 import org.openmrs.module.reporting.cohort.definition.AgeCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.DateObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.EncounterCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.MappedParametersCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.ObjectUtil;
@@ -94,6 +96,14 @@ public class Cohorts {
 		obsBetweenStartDateAndEndDate.addParameter(new Parameter("endDate", "endDate", Date.class));
 		
 		return obsBetweenStartDateAndEndDate;
+	}
+	
+	public static CohortDefinition getAnyEncounterOfTypesDuringPeriod(List<EncounterType> types) {
+		EncounterCohortDefinition cd = new EncounterCohortDefinition();
+		cd.setEncounterTypeList(types);
+		cd.addParameter(new Parameter("onOrAfter", "On or After", Date.class));
+		cd.addParameter(new Parameter("onOrBefore", "On or Before", Date.class));
+		return cd;
 	}
 	
 	// Convenience methods
