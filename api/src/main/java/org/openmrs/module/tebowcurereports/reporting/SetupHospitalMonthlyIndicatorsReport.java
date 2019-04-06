@@ -303,6 +303,49 @@ public class SetupHospitalMonthlyIndicatorsReport {
 		CohortIndicator inpatientMixIndicator = Indicators.newCohortIndicator("inpatientMixIndicator", inpatientMix, ParameterizableUtil.createParameterMappings("onOrAfter=${startDate},onOrBefore=${endDate}"));
 		dsd.addColumn("inpatientMix", "In-Patient Mix", new Mapped<CohortIndicator>(inpatientMixIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
 		
+		CohortDefinition pediatricPatients = Cohorts.patientWithAgeBelow(18);
+		
+		CompositionCohortDefinition padiatricPatientsWithAdmissionBetweenDates = new CompositionCohortDefinition();
+		padiatricPatientsWithAdmissionBetweenDates.setName("femalePatientsWithAdmissionBetweenDates");
+		padiatricPatientsWithAdmissionBetweenDates.addParameter(new Parameter("startedOnOrAfter", "Started on or after", Date.class));
+		padiatricPatientsWithAdmissionBetweenDates.addParameter(new Parameter("startedOnOrBefore", "Started on or before", Date.class));
+		padiatricPatientsWithAdmissionBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithAdmissionBetweenDates, ParameterizableUtil.createParameterMappings("onOrAfter=${startedOnOrAfter},onOrBefore=${startedOnOrBefore}")));
+		
+		padiatricPatientsWithAdmissionBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(pediatricPatients, ParameterizableUtil.createParameterMappings("effectiveDate=${startedOnOrBefore}")));
+		padiatricPatientsWithAdmissionBetweenDates.setCompositionString("1 and 2");
+		
+		CohortIndicator padiatricPatientsWithAdmissionBetweenDatesIndicator = Indicators.newCohortIndicator("padiatricPatientsWithAdmissionBetweenDatesIndicator", padiatricPatientsWithAdmissionBetweenDates, ParameterizableUtil.createParameterMappings("startedOnOrAfter=${startDate},startedOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("admissionsPediatric", "Admissions Pediatric", new Mapped<CohortIndicator>(padiatricPatientsWithAdmissionBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		CohortDefinition adultPatients = Cohorts.patientWithAgeAbove(18);
+		
+		CompositionCohortDefinition adultPatientsWithAdmissionBetweenDates = new CompositionCohortDefinition();
+		adultPatientsWithAdmissionBetweenDates.setName("adultPatientsWithAdmissionBetweenDates");
+		adultPatientsWithAdmissionBetweenDates.addParameter(new Parameter("startedOnOrAfter", "Started on or after", Date.class));
+		adultPatientsWithAdmissionBetweenDates.addParameter(new Parameter("startedOnOrBefore", "Started on or before", Date.class));
+		adultPatientsWithAdmissionBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithAdmissionBetweenDates, ParameterizableUtil.createParameterMappings("onOrAfter=${startedOnOrAfter},onOrBefore=${startedOnOrBefore}")));
+		
+		adultPatientsWithAdmissionBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(adultPatients, ParameterizableUtil.createParameterMappings("effectiveDate=${startedOnOrBefore}")));
+		adultPatientsWithAdmissionBetweenDates.setCompositionString("1 and 2");
+		
+		CohortIndicator adultPatientsWithAdmissionBetweenDatesIndicator = Indicators.newCohortIndicator("adultPatientsWithAdmissionBetweenDatesIndicator", adultPatientsWithAdmissionBetweenDates, ParameterizableUtil.createParameterMappings("startedOnOrAfter=${startDate},startedOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("admissionsAdult", "Admissions Adult", new Mapped<CohortIndicator>(adultPatientsWithAdmissionBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
+		CompositionCohortDefinition unknownAgePatientsWithAdmissionBetweenDates = new CompositionCohortDefinition();
+		unknownAgePatientsWithAdmissionBetweenDates.setName("unknownAgePatientsWithAdmissionBetweenDates");
+		unknownAgePatientsWithAdmissionBetweenDates.addParameter(new Parameter("startedOnOrAfter", "Started on or after", Date.class));
+		unknownAgePatientsWithAdmissionBetweenDates.addParameter(new Parameter("startedOnOrBefore", "Started on or before", Date.class));
+		unknownAgePatientsWithAdmissionBetweenDates.getSearches().put("1", new Mapped<CohortDefinition>(patientsWithAdmissionBetweenDates, ParameterizableUtil.createParameterMappings("onOrAfter=${startedOnOrAfter},onOrBefore=${startedOnOrBefore}")));
+		unknownAgePatientsWithAdmissionBetweenDates.getSearches().put("2", new Mapped<CohortDefinition>(pediatricPatients, ParameterizableUtil.createParameterMappings("effectiveDate=${startedOnOrBefore}")));
+		unknownAgePatientsWithAdmissionBetweenDates.getSearches().put("3", new Mapped<CohortDefinition>(adultPatients, ParameterizableUtil.createParameterMappings("effectiveDate=${startedOnOrBefore}")));
+		unknownAgePatientsWithAdmissionBetweenDates.setCompositionString("1 and ( not 2) and ( not 3 )");
+		
+		CohortIndicator unknownAgePatientsWithAdmissionBetweenDatesIndicator = Indicators.newCohortIndicator("unknownAgePatientsWithAdmissionBetweenDatesIndicator", unknownAgePatientsWithAdmissionBetweenDates, ParameterizableUtil.createParameterMappings("startedOnOrAfter=${startDate},startedOnOrBefore=${endDate}"));
+		
+		dsd.addColumn("admissionsUnknownAge", "Admissions UnknownAge", new Mapped<CohortIndicator>(unknownAgePatientsWithAdmissionBetweenDatesIndicator, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}")), "");
+		
 		// Private admissions
 		
 		CompositionCohortDefinition privatePatientsWithAdmissionBetweenDates = new CompositionCohortDefinition();

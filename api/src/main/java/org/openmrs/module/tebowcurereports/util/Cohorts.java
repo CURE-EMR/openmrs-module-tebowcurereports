@@ -16,6 +16,7 @@ import org.openmrs.module.reporting.cohort.definition.DateObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.EncounterCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.MappedParametersCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
+import org.openmrs.module.reporting.common.DurationUnit;
 import org.openmrs.module.reporting.common.ObjectUtil;
 import org.openmrs.module.reporting.common.RangeComparator;
 import org.openmrs.module.reporting.data.ConvertedDataDefinition;
@@ -50,12 +51,22 @@ public class Cohorts {
 		return xToYCohort;
 	}
 	
-	public static AgeCohortDefinition createOverXAgeCohort(String name, int minAge) {
-		AgeCohortDefinition overXCohort = new AgeCohortDefinition();
-		overXCohort.setName(name);
-		overXCohort.setMinAge(new Integer(minAge));
-		overXCohort.addParameter(new Parameter("effectiveDate", "endDate", Date.class));
-		return overXCohort;
+	public static AgeCohortDefinition patientWithAgeBelow(int age) {
+		AgeCohortDefinition patientsWithAgebelow = new AgeCohortDefinition();
+		patientsWithAgebelow.setName("patientsWithAgebelow");
+		patientsWithAgebelow.addParameter(new Parameter("effectiveDate", "effectiveDate", Date.class));
+		patientsWithAgebelow.setMaxAge(age - 1);
+		patientsWithAgebelow.setMaxAgeUnit(DurationUnit.YEARS);
+		return patientsWithAgebelow;
+	}
+	
+	public static AgeCohortDefinition patientWithAgeAbove(int age) {
+		AgeCohortDefinition patientsWithAge = new AgeCohortDefinition();
+		patientsWithAge.setName("patientsWithAge");
+		patientsWithAge.addParameter(new Parameter("effectiveDate", "effectiveDate", Date.class));
+		patientsWithAge.setMinAge(age);
+		patientsWithAge.setMinAgeUnit(DurationUnit.YEARS);
+		return patientsWithAge;
 	}
 	
 	public static CohortDefinition getPatientsWhoseObsValueDateIsBetweenStartDateAndEndDateAtLocation(Concept concept) {
